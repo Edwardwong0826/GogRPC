@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package wong;
+
+option go_package = "GogRPC/pb;proto";
+import "GogRPC/proto/computer.proto";
+import "GogRPC/proto/component.proto";
+import "GogRPC/proto/storage.proto";
+import "GogRPC/proto/screen.proto";
+import "GogRPC/proto/keyboard.proto";
+import "google/protobuf/timestamp.proto";
+
+message Laptop {
+    string id =1;
+    string brand = 2;
+    string name = 3;
+    wong.CPU cpu = 4;
+    wong.Memory ram = 5;
+    repeated wong.GPU gpus = 6;
+    repeated wong.Storage storages = 7;
+    wong.Screen screen = 8;
+    wong.Keyboard keyboard = 9; 
+    oneof weight{
+        double weight_kg = 10;
+        double weight_lb = 11;
+
+    }
+
+    double price_usd = 12;
+    uint32 release_year = 13;
+    google.protobuf.Timestamp updated_at = 14;
+  }

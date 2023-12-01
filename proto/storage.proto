@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package wong;
+
+option go_package = "GogRPC/pb;proto";
+import "GogRPC/proto/component.proto";
+message Storage {
+    enum Driver {
+      UNKNOWN = 0;
+      HDD = 1;
+      SSD = 2;
+
+    }
+  
+    Driver driver = 1;
+    wong.Memory memory = 2;
+  }

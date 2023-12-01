@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package wong;
+
+// option go_package = "{out_path};out_go_package"; 
+// first parameter generated file destination path, second paramter generated file package name
+option go_package = "GogRPC/pb;proto";
+
+// when import there is error for this exact path name, just igonore as along can use protoc complie go file
+import "GogRPC/proto/component.proto";
+
+// down gRPC library for go
+// go get -u google.golang.org/grpc
+
+// install vscode-proto3 extension
+// install Clang-Format extension
+
+// https://grpc.io/docs/languages/go/quickstart/
+// https://grpc.io/docs/protoc-installation/
+// https://www.geeksforgeeks.org/how-to-install-protocol-buffers-on-windows/ - put protoc exe path to windwos environment variable
+
+
+// if run below command hit this error --go_out: protoc-gen-go: plugins are not supported;
+// https://www.cnblogs.com/yanweifeng/p/17485496.html - according this website - go install github.com/golang/protobuf/protoc-gen-go
+// then run again the command should be sucess
+
+// protoc --proto_path=proto proto/processor_message.proto --go_out=plugins=grpc:pb
+// protoc --proto_path=proto proto/*.proto --go_out=plugins=grpc:pb
+
+// protoc --proto_path=. --go_out=. ./GogRPC/proto/*.proto - use this, this the one works without problem, current path need at C:\Git , above useless
+
+// https://www.lixueduan.com/posts/protobuf/01-import/ - refer to this for how to import other proto files, and also how to define which path refer to generated grpc go file, how to config grpc go file package name
+
+
+
+// class name need to Upper camel case
+message CPU {
+
+    // fields name need to snake_case
+    string brand = 1;
+    string name = 2;
+    uint32 number_cores = 3;
+    uint32 number_threads = 4;
+    double min_ghz = 5;
+    double max_ghz = 6;
+
+}
+
+message GPU {
+
+    string brand = 1;
+    string name = 2;
+    double min_ghz = 3;
+    double max_ghz = 4;
+    wong.Memory memory = 5;
+
+}

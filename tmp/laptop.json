@@ -1,0 +1,60 @@
+{
+  "id": "2f412d6f-5386-4e5d-bd28-e44bbab217bf",
+  "brand": "Apple",
+  "name": "Macbook Air",
+  "cpu": {
+    "brand": "Intel",
+    "name": "Xeon E-2286M",
+    "numberCores": 3,
+    "numberThreads": 11,
+    "minGhz": 3.088364508519632,
+    "maxGhz": 4.7276943465825925
+  },
+  "ram": {
+    "value": "42",
+    "unit": "GIGABYTE"
+  },
+  "gpus": [
+    {
+      "brand": "AMD",
+      "name": "RX 590",
+      "minGhz": 1.4548238274652774,
+      "maxGhz": 1.8709146291546888,
+      "memory": {
+        "value": "6",
+        "unit": "GIGABYTE"
+      }
+    }
+  ],
+  "storages": [
+    {
+      "driver": "SSD",
+      "memory": {
+        "value": "604",
+        "unit": "GIGABYTE"
+      }
+    },
+    {
+      "driver": "HDD",
+      "memory": {
+        "value": "4",
+        "unit": "TERABYTE"
+      }
+    }
+  ],
+  "screen": {
+    "sizeInch": 15.314075,
+    "resolution": {
+      "width": 6003,
+      "height": 3377
+    },
+    "panel": "IPS"
+  },
+  "keyboard": {
+    "layout": "AZERTY"
+  },
+  "weightKg": 2.7492171896793334,
+  "priceUsd": 3335.921585669933,
+  "releaseYear": 2019,
+  "updatedAt": "2023-12-01T09:28:22.734686200Z"
+}

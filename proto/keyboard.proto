@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package wong;
+
+option java_package = "com.wong.grpc.pb";
+option java_multiple_files = true;
+option go_package = "GogRPC/pb;proto";
+
+message Keyboard {
+    enum Layout {
+      UNKNOWN = 0;
+      QWERTY = 1;
+      QWERTZ = 2;
+      AZERTY = 3;
+    }
+  
+    Layout layout = 1;
+    bool backlit = 2;
+  }
