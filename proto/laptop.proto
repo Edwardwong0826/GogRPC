@@ -3,12 +3,15 @@ syntax = "proto3";
 package wong;
 
 option go_package = "GogRPC/pb;proto";
+option java_package = "com.wong.grpc.pb";
+option java_multiple_files = true;
 import "GogRPC/proto/computer.proto";
 import "GogRPC/proto/component.proto";
 import "GogRPC/proto/storage.proto";
 import "GogRPC/proto/screen.proto";
 import "GogRPC/proto/keyboard.proto";
 import "google/protobuf/timestamp.proto";
+
 
 message Laptop {
     string id =1;

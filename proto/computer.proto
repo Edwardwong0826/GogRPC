@@ -5,12 +5,17 @@ package wong;
 // option go_package = "{out_path};out_go_package"; 
 // first parameter generated file destination path, second paramter generated file package name
 option go_package = "GogRPC/pb;proto";
+option java_package = "com.wong.grpc.pb";
+option java_multiple_files = true;
 
 // when import there is error for this exact path name, just igonore as along can use protoc complie go file
 import "GogRPC/proto/component.proto";
 
+
+
 // down gRPC library for go
 // go get -u google.golang.org/grpc
+// go get github.com/google/uuid
 
 // install vscode-proto3 extension
 // install Clang-Format extension

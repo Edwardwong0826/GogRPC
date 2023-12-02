@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package wong;
+
+option go_package = "GogRPC/pb;proto";
+option java_package = "com.wong.grpc.pb";
+option java_multiple_files = true;
+
+import "GogRPC/proto/laptop.proto";
+
+message CreateLaptopRequest{
+    Laptop laptop = 1;
+}
+
+message CreateLaptopResponse {
+    string id = 1;
+}
+
+service LaptopService {
+    rpc CreateLaptop(CreateLaptopRequest) returns (CreateLaptopResponse) {};
+}

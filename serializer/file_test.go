@@ -14,6 +14,9 @@ import (
 // this is like junit assert in Java
 // go get github.com/stretchr/testify
 // click left button to run test, dont click run test it will hang at ok dont know why
+
+// after run the test and validate the laptop.bin and laptop.json result, this go project generated laptop.bin
+// can use in other gRPC project such as Java to test the other generated laptop.json is the same or not
 func TestFileSerializer(t *testing.T) {
 	t.Parallel()
 
