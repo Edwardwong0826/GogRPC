@@ -45,12 +45,18 @@ func (server *LaptopServer) CreateLaptop(ctx context.Context, req *wongProto.Cre
 		laptop.Id = id.String()
 	}
 
-	// some heavy processing
-	// time.Sleep(6 * time.Second)
+	//some heavy processing
+	//time.Sleep(6 * time.Second)
 
-	// if err := contextError(ctx); err != nil {
-	// 	return nil, err
-	// }
+	if ctx.Err() == context.Canceled {
+		log.Print("request is canceled")
+		return nil, status.Error(codes.Canceled, "request is canceled")
+	}
+
+	if ctx.Err() == context.DeadlineExceeded {
+		log.Print("deadline is exceeded")
+		return nil, status.Error(codes.DeadlineExceeded, "deadline is exceeded")
+	}
 
 	// save the laptop to store
 	err := server.laptopStore.Save(laptop)
