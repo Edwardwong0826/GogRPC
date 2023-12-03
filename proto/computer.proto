@@ -33,6 +33,7 @@ import "GogRPC/proto/component.proto";
 // protoc --proto_path=proto proto/*.proto --go_out=plugins=grpc:pb
 
 // protoc --proto_path=. --go_out=. ./GogRPC/proto/*.proto - use this, this the one works without problem, current path need at C:\Git , above useless
+//  protoc --proto_path=. --go-grpc_out=. ./GogRPC/proto/*.proto - this one generate the grpc file
 
 // https://www.lixueduan.com/posts/protobuf/01-import/ - refer to this for how to import other proto files, and also how to define which path refer to generated grpc go file, how to config grpc go file package name
 

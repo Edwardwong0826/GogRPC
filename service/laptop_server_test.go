@@ -40,24 +40,24 @@ func TestServerCreateLaptop(t *testing.T) {
 			store:  service.NewInMemoryLaptopStore(),
 			code:   codes.OK,
 		},
-		// {
-		// 	name:   "success_no_id",
-		// 	laptop: laptopNoID,
-		// 	store:  service.NewInMemoryLaptopStore(),
-		// 	code:   codes.OK,
-		// },
+		{
+			name:   "success_no_id",
+			laptop: laptopNoID,
+			store:  service.NewInMemoryLaptopStore(),
+			code:   codes.OK,
+		},
 		{
 			name:   "failure_invalid_id",
 			laptop: laptopInvalidID,
 			store:  service.NewInMemoryLaptopStore(),
 			code:   codes.InvalidArgument,
 		},
-		// {
-		// 	name:   "failure_duplicate_id",
-		// 	laptop: laptopDuplicateID,
-		// 	store:  storeDuplicateID,
-		// 	code:   codes.AlreadyExists,
-		// },
+		{
+			name:   "failure_duplicate_id",
+			laptop: laptopDuplicateID,
+			store:  storeDuplicateID,
+			code:   codes.AlreadyExists,
+		},
 	}
 
 	for i := range testCases {

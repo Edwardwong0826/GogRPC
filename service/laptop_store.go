@@ -14,6 +14,7 @@ var ErrAlreadyExists = errors.New("record already exists")
 // this is an interface to store laptop
 type LaptopStore interface {
 	Save(laptop *wongProto.Laptop) error
+	Find(id string) (*wongProto.Laptop, error)
 }
 
 // stores laptop in db
@@ -53,4 +54,28 @@ func (store *InMemoryLaptopStore) Save(laptop *wongProto.Laptop) error {
 
 	store.data[other.Id] = other
 	return nil
+}
+
+// Find a laptop by Ud
+func (store *InMemoryLaptopStore) Find(id string) (*wongProto.Laptop, error) {
+	store.mutex.RLock() // require read lock
+	defer store.mutex.RUnlock()
+
+	laptop := store.data[id]
+	if laptop == nil {
+		return nil, nil
+	}
+
+	return deepCopy(laptop)
+}
+
+func deepCopy(laptop *wongProto.Laptop) (*wongProto.Laptop, error) {
+	other := &wongProto.Laptop{}
+
+	err := copier.Copy(other, laptop)
+	if err != nil {
+		return nil, fmt.Errorf("cannot copy laptop data: %w", err)
+	}
+
+	return other, nil
 }
