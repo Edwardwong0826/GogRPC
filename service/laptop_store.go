@@ -1,9 +1,11 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	wongProto "gogrpc/pb"
+	"log"
 	"sync"
 
 	"github.com/jinzhu/copier"
@@ -15,6 +17,7 @@ var ErrAlreadyExists = errors.New("record already exists")
 type LaptopStore interface {
 	Save(laptop *wongProto.Laptop) error
 	Find(id string) (*wongProto.Laptop, error)
+	Search(ctx context.Context, filter *wongProto.Filter, found func(laptop *wongProto.Laptop) error) error
 }
 
 // stores laptop in db
@@ -67,6 +70,81 @@ func (store *InMemoryLaptopStore) Find(id string) (*wongProto.Laptop, error) {
 	}
 
 	return deepCopy(laptop)
+}
+
+// Sarch a laptop
+func (store *InMemoryLaptopStore) Search(ctx context.Context, filter *wongProto.Filter, found func(laptop *wongProto.Laptop) error) error {
+
+	store.mutex.RLock() // require read lock
+	defer store.mutex.RUnlock()
+
+	for _, laptop := range store.data {
+
+		// time.Sleep(time.Second)
+		log.Print("checking laptop id: ", laptop.GetId())
+
+		if ctx.Err() == context.Canceled || ctx.Err() == context.DeadlineExceeded {
+			log.Print("context is cancelled")
+			return nil
+		}
+
+		if isQualified(filter, laptop) {
+			// deep copy
+			other, err := deepCopy(laptop)
+			if err != nil {
+				return err
+			}
+
+			err = found(other)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+
+}
+
+func isQualified(filter *wongProto.Filter, laptop *wongProto.Laptop) bool {
+	if laptop.GetPriceUsd() > filter.GetMaxPriceUsd() {
+		return false
+	}
+
+	if laptop.GetCpu().GetNumberCores() < filter.GetMinCpuCores() {
+		return false
+	}
+
+	if laptop.GetCpu().GetMinGhz() < filter.GetMinCpuGhz() {
+		return false
+	}
+
+	if toBit(laptop.GetRam()) < toBit(filter.GetMinRam()) {
+		return false
+	}
+
+	return true
+}
+
+func toBit(memory *wongProto.Memory) uint64 {
+	value := memory.GetValue()
+
+	switch memory.GetUnit() {
+	case wongProto.Memory_BIT:
+		return value
+	case wongProto.Memory_BYTE:
+		return value << 3 // 8 = 2^3
+	case wongProto.Memory_KILOBYTE:
+		return value << 13 // 1024 * 8 = 2^10 * 2^3 = 2^13
+	case wongProto.Memory_MEGABYTE:
+		return value << 23
+	case wongProto.Memory_GIGABYTE:
+		return value << 33
+	case wongProto.Memory_TERABYTE:
+		return value << 43
+	default:
+		return 0
+	}
 }
 
 func deepCopy(laptop *wongProto.Laptop) (*wongProto.Laptop, error) {

@@ -12,8 +12,7 @@ option java_multiple_files = true;
 import "GogRPC/proto/component.proto";
 
 
-
-// down gRPC library for go
+// download gRPC library for Go
 // go get -u google.golang.org/grpc
 // go get github.com/google/uuid
 
@@ -29,11 +28,13 @@ import "GogRPC/proto/component.proto";
 // https://www.cnblogs.com/yanweifeng/p/17485496.html - according this website - go install github.com/golang/protobuf/protoc-gen-go
 // then run again the command should be sucess
 
+// this is for reference only, will not work
 // protoc --proto_path=proto proto/processor_message.proto --go_out=plugins=grpc:pb
-// protoc --proto_path=proto proto/*.proto --go_out=plugins=grpc:pb
+// protoc --proto_path=proto proto/*.proto --go_out=plugins=grpc:pb 
 
-// protoc --proto_path=. --go_out=. ./GogRPC/proto/*.proto - use this, this the one works without problem, current path need at C:\Git , above useless
-//  protoc --proto_path=. --go-grpc_out=. ./GogRPC/proto/*.proto - this one generate the grpc file
+// this command is use in Go project, Java not necessary to use because can directly click maven plugins after install protobuf plugins
+// protoc --proto_path=. --go_out=. ./GogRPC/proto/*.proto - use this, this the one works without problem, current path need at C:\Git,above useless
+// protoc --proto_path=. --go-grpc_out=. ./GogRPC/proto/*.proto - this one generate the grpc file for Go project
 
 // https://www.lixueduan.com/posts/protobuf/01-import/ - refer to this for how to import other proto files, and also how to define which path refer to generated grpc go file, how to config grpc go file package name
 

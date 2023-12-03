@@ -7,6 +7,7 @@ option java_package = "com.wong.grpc.pb";
 option java_multiple_files = true;
 
 import "GogRPC/proto/laptop.proto";
+import "GogRPC/proto/filter.proto";
 
 message CreateLaptopRequest{
     Laptop laptop = 1;
@@ -16,6 +17,18 @@ message CreateLaptopResponse {
     string id = 1;
 }
 
+message SearchLaptopRequest{
+    Filter filter = 1;
+}
+
+message SearchLaptopResponse{
+    Laptop laptop = 1;
+}
+
+
 service LaptopService {
+    // this is unary RPC
     rpc CreateLaptop(CreateLaptopRequest) returns (CreateLaptopResponse) {};
+    // this is server-streaming RPC
+    rpc SearchLaptop(SearchLaptopRequest) returns (stream SearchLaptopResponse) {};
 }

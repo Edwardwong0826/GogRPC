@@ -76,3 +76,33 @@ func (server *LaptopServer) CreateLaptop(ctx context.Context, req *wongProto.Cre
 	}
 	return res, nil
 }
+
+// SearchLaptop is a server-streaming RPC to search for laptops
+func (server *LaptopServer) SearchLaptop(
+	req *wongProto.SearchLaptopRequest,
+	stream wongProto.LaptopService_SearchLaptopServer,
+) error {
+	filter := req.GetFilter()
+	log.Printf("receive a search-laptop request with filter: %v", filter)
+
+	err := server.laptopStore.Search(
+		stream.Context(),
+		filter,
+		func(laptop *wongProto.Laptop) error {
+			res := &wongProto.SearchLaptopResponse{Laptop: laptop}
+			err := stream.Send(res)
+			if err != nil {
+				return err
+			}
+
+			log.Printf("sent laptop with id: %s", laptop.GetId())
+			return nil
+		},
+	)
+
+	if err != nil {
+		return status.Errorf(codes.Internal, "unexpected error: %v", err)
+	}
+
+	return nil
+}

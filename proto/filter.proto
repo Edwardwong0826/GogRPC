@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package wong;
+
+option go_package = "GogRPC/pb;proto";
+option java_package = "com.wong.grpc.pb";
+option java_multiple_files = true;
+
+import "GogRPC/proto/component.proto";
+
+message Filter {
+    double max_price_usd = 1;
+    uint32 min_cpu_cores = 2;
+    double min_cpu_ghz = 3;
+    wong.Memory min_ram = 4;
+  }
