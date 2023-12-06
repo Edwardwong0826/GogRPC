@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"flag"
 	wongProto "gogrpc/pb"
 	"gogrpc/sample"
 	"io"
 	"log"
+	"os"
+	"path/filepath"
 	"time"
 
 	"google.golang.org/grpc"
@@ -14,8 +17,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func createLaptop(laptopClient wongProto.LaptopServiceClient) {
-	laptop := sample.NewLaptop()
+func createLaptop(laptopClient wongProto.LaptopServiceClient, laptop *wongProto.Laptop) {
 
 	req := &wongProto.CreateLaptopRequest{
 		Laptop: laptop,
@@ -71,6 +73,95 @@ func searchLaptop(laptopClient wongProto.LaptopServiceClient, filter *wongProto.
 	}
 }
 
+func uploadImage(laptopClient wongProto.LaptopServiceClient, laptopID string, imagePath string) {
+	file, err := os.Open(imagePath)
+	if err != nil {
+		log.Fatal("cannot open image file: ", err)
+	}
+	defer file.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	stream, err := laptopClient.UploadImage(ctx)
+	if err != nil {
+		log.Fatal("cannot upload image: ", err)
+	}
+
+	req := &wongProto.UploadImageRequest{
+		Data: &wongProto.UploadImageRequest_Info{
+			Info: &wongProto.ImageInfo{
+				LaptopId:  laptopID,
+				ImageType: filepath.Ext(imagePath),
+			},
+		},
+	}
+
+	err = stream.Send(req)
+	if err != nil {
+		log.Fatal("cannot send image info to server: ", err, stream.RecvMsg(nil))
+	}
+
+	reader := bufio.NewReader(file)
+	buffer := make([]byte, 1024)
+
+	for {
+		n, err := reader.Read(buffer)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal("cannot read chunk to buffer: ", err)
+		}
+
+		req := &wongProto.UploadImageRequest{
+			Data: &wongProto.UploadImageRequest_ChunkData{
+				ChunkData: buffer[:n],
+			},
+		}
+
+		err = stream.Send(req)
+		if err != nil {
+			// stream.RecvMsg(nil) will get real error contains gRPC status code
+			log.Fatal("cannot send chunk to server: ", err, stream.RecvMsg(nil))
+		}
+	}
+
+	res, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Fatal("cannot receive response: ", err)
+	}
+
+	log.Printf("image uploaded with id: %s, size: %d", res.GetId(), res.GetSize())
+}
+
+func testCreateLaptop(laptopClient wongProto.LaptopServiceClient) {
+	createLaptop(laptopClient, sample.NewLaptop())
+}
+
+func testSearchLaptop(laptopClient wongProto.LaptopServiceClient) {
+	for i := 0; i < 10; i++ {
+		createLaptop(laptopClient, sample.NewLaptop())
+	}
+
+	filter := &wongProto.Filter{
+		MaxPriceUsd: 3000,
+		MinCpuCores: 4,
+		MinCpuGhz:   2.5,
+		MinRam:      &wongProto.Memory{Value: 8, Unit: wongProto.Memory_GIGABYTE},
+	}
+
+	searchLaptop(laptopClient, filter)
+}
+
+func testUploadImage(laptopClient wongProto.LaptopServiceClient) {
+	laptop := sample.NewLaptop()
+	createLaptop(laptopClient, laptop)
+
+	// image name need to be same and drag in tmp folder
+	uploadImage(laptopClient, laptop.GetId(), "tmp/laptop.jpg")
+}
+
 func main() {
 	serverAddress := flag.String("address", "", "the server address")
 	flag.Parse()
@@ -82,17 +173,6 @@ func main() {
 	}
 
 	laptopClient := wongProto.NewLaptopServiceClient(conn)
-	for i := 0; i < 10; i++ {
-		createLaptop(laptopClient)
-	}
-
-	filter := &wongProto.Filter{
-		MaxPriceUsd: 3000,
-		MinCpuCores: 4,
-		MinCpuGhz:   2.5,
-		MinRam:      &wongProto.Memory{Value: 8, Unit: wongProto.Memory_GIGABYTE},
-	}
-
-	searchLaptop(laptopClient, filter)
+	testUploadImage(laptopClient)
 
 }
