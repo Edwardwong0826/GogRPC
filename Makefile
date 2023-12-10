@@ -1,4 +1,5 @@
 #install on widnwos use Cygwin or choco for make command 
+# if copy the command run in terminal, remember cd to C:\Git\GogRPC> to run it
 server:
 	go run cmd/server/main.go -port 8080
 

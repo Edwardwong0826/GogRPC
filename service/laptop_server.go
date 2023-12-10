@@ -20,14 +20,17 @@ const maxImageSize = 1 << 30
 type LaptopServer struct {
 	wongProto.UnimplementedLaptopServiceServer
 	laptopStore LaptopStore
-	imagestore  ImageStore
+	imageStore  ImageStore
+	ratingStore RatingStore
 }
 
+// this service class need to implements the method defined in generated grpc class inside all interface method
 // returns a new LaptopServer
-func NewLaptopServer(laptopStore LaptopStore, imageStore ImageStore) *LaptopServer {
+func NewLaptopServer(inLaptopStore LaptopStore, inImageStore ImageStore, inRatingStore RatingStore) *LaptopServer {
 	return &LaptopServer{
-		laptopStore: laptopStore,
-		imagestore:  imageStore,
+		laptopStore: inLaptopStore,
+		imageStore:  inImageStore,
+		ratingStore: inRatingStore,
 	}
 }
 
@@ -171,7 +174,7 @@ func (server *LaptopServer) UploadImage(stream wongProto.LaptopService_UploadIma
 		}
 	}
 
-	imageID, err := server.imagestore.Save(laptopID, imageType, imageData)
+	imageID, err := server.imageStore.Save(laptopID, imageType, imageData)
 	if err != nil {
 		return logError(status.Errorf(codes.Internal, "cannot save image to the store: %v", err))
 	}
@@ -187,6 +190,59 @@ func (server *LaptopServer) UploadImage(stream wongProto.LaptopService_UploadIma
 	}
 
 	log.Printf("saved image with id: %s, size: %d", imageID, imageSize)
+	return nil
+}
+
+// RateLaptop is a bidirectional-streaming RPC that allows client to rate a stream of laptops
+// with a score, and returns a stream of average score for each of them
+func (server *LaptopServer) RateLaptop(stream wongProto.LaptopService_RateLaptopServer) error {
+	for {
+		err := contextError(stream.Context())
+		if err != nil {
+			return err
+		}
+
+		req, err := stream.Recv()
+		if err == io.EOF {
+			log.Print("no more data")
+			break
+		}
+		if err != nil {
+			return logError(status.Errorf(codes.Unknown, "cannot receive stream request : %v", err))
+		}
+
+		laptopID := req.GetLaptopId()
+		score := req.GetScore()
+
+		log.Printf("received a rate-laptop request: id = %s, score = %.2f", laptopID, score)
+
+		found, err := server.laptopStore.Find(laptopID)
+		if err != nil {
+			return logError(status.Errorf(codes.Internal, "cannot find laptop %v", err))
+		}
+
+		if found == nil {
+			return logError(status.Errorf(codes.NotFound, "laptopID %s is not found", laptopID))
+		}
+
+		rating, err := server.ratingStore.Add(laptopID, score)
+		if err != nil {
+			return logError(status.Errorf(codes.Internal, "cannot add rating to the store: %v", err))
+		}
+
+		res := &wongProto.RateLaptopResponse{
+			LaptopId:     laptopID,
+			RatedCount:   rating.Count,
+			AverageScore: rating.Sum / float64(rating.Count),
+		}
+
+		err = stream.Send(res)
+		if err != nil {
+			return logError(status.Errorf(codes.Unknown, "cannot send stream response: %v", err))
+		}
+
+	}
+
 	return nil
 }
 
