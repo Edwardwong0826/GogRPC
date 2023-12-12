@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package wong;
+
+// option go_package = "{out_path};out_go_package"; 
+// first parameter generated file destination path, second paramter generated file package name
+option go_package = "GogRPC/pb;proto";
+option java_package = "com.wong.grpc.pb";
+option java_multiple_files = true;
+
+
+message LoginRequest {
+    string username = 1;
+    string password = 2;
+  }
+  
+  message LoginResponse { string access_token = 1; }
+  
+  service AuthService {
+    rpc Login(LoginRequest) returns (LoginResponse) {};
+  }
