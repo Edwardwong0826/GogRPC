@@ -11,6 +11,7 @@ import (
 	wongProto "gogrpc/pb"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func seedUsers(userStore service.UserStore) error {
@@ -101,6 +102,7 @@ func main() {
 
 	wongProto.RegisterAuthServiceServer(grpcServer, authServer)
 	wongProto.RegisterLaptopServiceServer(grpcServer, laptopServer)
+	reflection.Register(grpcServer)
 
 	address := fmt.Sprintf("0.0.0.0:%d", *port)
 	listener, err := net.Listen("tcp", address)
